@@ -1,0 +1,311 @@
+#include <kipr/wombat.h>
+//VARIABLES
+int closedOrange = 430;
+int closedGreen = 430;
+int opened=1300;
+int speed=30;
+int lilSpeed=15;
+int max = 485;
+int orangeVert = 1320;
+int greenVert = 1600;
+int lmotor = 0;
+int rmotor = 3;
+int side = 4;
+int vertical = 0;
+int claw = 1;
+int clawSideSens = 0;
+int clawFrontSens = 0;
+int frontSens = 5;
+int line = 2500;
+int gWall = 500;
+int lineL = 3800;
+int sideLight = 5;
+//FUNCTIONS
+void claw_down_orange();
+void claw_down_green();
+void claw_up_max();
+void claw_up_orange();
+void close_claw_orange();
+void close_claw_green();
+void open_claw();
+void back();
+void left_turn();
+void right_turn();
+void quickf();
+void quickb();
+void quickd();
+void place();
+void forward();
+void pivot_left_turn();
+void pivot_right_turn();
+
+int main(){
+	//wait for light();
+	//shut_down_in(120.0);
+    //start off with claw up and opened
+	enable_servos();
+    open_claw();
+	claw_up_max();
+    
+    //RING TIME!
+	//move claw down to green 
+	claw_down_green();
+	//close claw CHECK
+	close_claw_green();
+	//move back while range finder no see white pole CHECK
+	while(analog(clawSideSens) < line){
+  		back();
+	}
+	//open claw CHECK
+	open_claw();
+	msleep(1000);
+	//move claw up to orange position CHECK
+	claw_up_orange();
+	//close claw CHECK
+	close_claw_orange();
+    msleep(1000);
+	//move claw up to max CHECK
+	claw_up_max();
+    msleep(1000);
+	//turn robot to the left CHECK
+	left_turn();
+	msleep(750);
+	ao();
+	msleep(1000);
+	//move down and wiggle fix CHECK
+	place();
+	msleep(1000);
+	//open claw CHECK
+	open_claw();
+	//go up to max CHECK
+	claw_up_max();
+	//turn robot to the right to face forward
+	right_turn();
+	ao();
+	msleep(1000);
+	//go down to green position CHECK
+	claw_down_green();
+	//close claw
+	close_claw_green();
+	//go up
+	claw_up_max();
+	//turn robot to the left
+	left_turn();
+	msleep(750);
+	ao();
+	msleep(1000);
+	//move down for 1 second
+	//move down and wiggle fix
+	place();
+	msleep(1000);
+	//open claw
+	open_claw();
+	//go up to max
+	claw_up_max();
+    
+    
+    
+    //BOTGUY TIME!
+    claw_down_green();
+    close_claw_green();
+    right_turn();
+    msleep(1250);
+    ao();
+    msleep(1000);
+    while(digital(clawFrontSens) == 0){
+	forward();
+    }
+    ao();
+    msleep(1000);
+    open_claw();
+    msleep(1000);
+    forward();
+    msleep(500);
+    claw_up_max();
+    msleep(1000);
+    back();
+    msleep(1000);
+    //left
+    pivot_left_turn();
+    msleep(750);
+    ao();
+    msleep(500);
+    //right
+    pivot_right_turn();
+    msleep(750);
+    ao();
+    msleep(500);
+    //left normal
+    pivot_left_turn();
+    msleep(750);
+    ao();
+    msleep(500);
+    //forward while left doesnt see < lineL
+    while(analog(sideLight) < lineL){
+    	forward();
+    }
+    ao();
+    msleep(1000);
+    //pivot left turn
+    pivot_left_turn();
+    msleep(1000);
+    //forward for like a second
+    forward();
+    msleep(1000);
+    ao(1000);
+    //grab
+    close_claw_green();
+    msleep(1000);
+    // move back 1 second
+    back();
+    msleep(1000);
+    ao();
+    msleep(1000);
+    // 
+    disable_servos();
+    ao();
+	return 0;
+}
+
+
+void claw_down_orange(){
+	int i = get_servo_position(0); // get vert pos
+  	while(i < orangeVert){
+    		set_servo_position(0,i);
+    		printf("going down\n");
+    		msleep(20);
+	    	i+=5;
+  	}
+	printf("finally at orange\n");
+}
+void claw_down_green(){
+	int i = get_servo_position(0);
+  	while(i < greenVert){
+    		set_servo_position(0,i);
+    		printf("going down\n");
+    		msleep(20);
+    		i+=5;
+  	}
+  	printf("finally at green\n");
+}
+void claw_up_max(){
+  	int i = get_servo_position(0);
+  	while(i>max){
+    		set_servo_position(0,i);
+    		printf("going up\n");
+    		msleep(20);
+    		i-=5;
+  	}
+  	printf("finally at max\n");
+}
+void claw_up_orange(){
+	int i = get_servo_position(0);
+	while(i>orangeVert){
+    		set_servo_position(0,i);
+    		msleep(20);
+    		printf("going up\n");
+    		i-=5;
+  	}
+  	printf("finally at orange\n");
+}
+void close_claw_orange(){
+	int i = get_servo_position(1);
+  	while(i > closedOrange){
+		set_servo_position(1,i);
+        	printf("closing\n");
+    		msleep(20);
+    		i-=5;
+  	}
+  	printf("finally closed on orange\n");
+}
+void close_claw_green(){
+	int i = get_servo_position(1);
+	while(i > closedGreen){
+		set_servo_position(1,i);
+		printf("closing\n");
+		msleep(20);
+		i-=5;
+	}
+	printf("finally closed on green\n");
+}
+void open_claw(){
+	int i = get_servo_position(1);
+	while(i < opened){
+		set_servo_position(1,i);
+    		printf("opening\n");
+    		msleep(20);
+    		i+=5;
+  	}
+	printf("finally opened\n");
+}
+void back(){
+	motor(lmotor,-speed);
+  	motor(rmotor,-speed);
+	printf("moving backwards\n");
+}
+void forward(){
+	motor(lmotor,speed);
+	motor(rmotor,speed);
+	printf("moving forwards\n");
+}
+void left_turn(){
+	motor(lmotor,-speed);
+	motor(rmotor,speed);
+	printf("turning left\n");
+}
+void pivot_left_turn(){
+	motor(lmotor,0);
+	motor(rmotor,speed);
+	printf("turning left\n");
+}
+void right_turn(){
+	motor(lmotor,speed);
+	motor(rmotor,-speed);
+	printf("turning right\n");
+}
+void pivot_right_turn(){
+	motor(lmotor,speed);
+	motor(rmotor,0);
+	printf("turning right\n");
+}
+void quickf(){
+	motor(lmotor,lilSpeed);
+	motor(rmotor,lilSpeed);
+	msleep(250);
+	printf("moving forward a bit\n");
+	//ao();
+}
+void quickb(){
+	motor(lmotor,-lilSpeed);
+	motor(rmotor,-lilSpeed);
+	msleep(250);
+	printf("moving backward a bit\n");
+	//ao();
+}
+void quickd(){
+	set_servo_position(0,get_servo_position(0)+30);
+	msleep(20);
+	printf("going down a bit\n");
+}
+void place(){
+	int i = 0;
+	while(i<15){
+		quickf();
+    		msleep(50);
+    		ao();
+    		msleep(50);
+    		printf("forward a bit\n");
+    		quickd();
+    		msleep(50);
+    		printf("down a bit\n");
+    		quickb();
+    		msleep(50);
+    		printf("backward a bit\n");
+    		ao();
+    		msleep(50);
+    		quickd();
+    		msleep(50);
+    		printf("down a bit\n");
+    		i++;
+  	}
+}
